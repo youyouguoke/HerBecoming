@@ -19,11 +19,17 @@ export function MessageComposer({
   isRateLimited,
 }: MessageComposerProps) {
   const [text, setText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = () => {
-    if (!text.trim() || status === "sending" || status === "streaming" || isRateLimited) return;
-    onSend(text);
+  const handleSubmit = async () => {
+    if (!text.trim() || status === "sending" || status === "streaming" || isRateLimited || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onSend(text);
+    } finally {
+      setIsSubmitting(false);
+    }
     setText("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
@@ -71,13 +77,19 @@ export function MessageComposer({
             />
             <button
               onClick={handleSubmit}
-              disabled={!text.trim() || status === "sending" || isRateLimited}
-              className="absolute right-3 bottom-3 p-2 bg-primary text-on-primary rounded-xl hover:bg-secondary transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!text.trim() || status === "sending" || isRateLimited || isSubmitting}
+              className="absolute right-3 bottom-3 p-2 bg-primary text-on-primary rounded-xl hover:bg-secondary transition-colors flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed"
               aria-label="Send message"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
+              {status === "sending" || isSubmitting ? (
+                <svg className="w-5 h-5" style={{ animation: "spin 1s linear infinite" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 7v-5h-.581m0 7a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+              )}
             </button>
           </div>
           <div className="text-center mt-2">
@@ -110,13 +122,19 @@ export function MessageComposer({
             />
             <button
               onClick={handleSubmit}
-              disabled={!text.trim() || status === "sending" || isRateLimited}
-              className="bg-primary text-on-primary p-3 rounded-full hover:bg-on-primary-container transition-colors mb-0.5 flex-shrink-0 shadow-sm"
+              disabled={!text.trim() || status === "sending" || isRateLimited || isSubmitting}
+              className="bg-primary text-on-primary p-3 rounded-full hover:bg-on-primary-container transition-colors mb-0.5 flex-shrink-0 shadow-sm disabled:opacity-60"
               aria-label="Send message"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
+              {status === "sending" || isSubmitting ? (
+                <svg className="w-5 h-5" style={{ animation: "spin 1s linear infinite" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 7v-5h-.581m0 7a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+              )}
             </button>
           </div>
         </div>

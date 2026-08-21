@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Footer } from "@/components/ui/Footer";
 
 export default function Home() {
   return (
@@ -36,9 +37,7 @@ export default function Home() {
         </div>
       </main>
       <footer className="w-full px-margin-mobile md:px-margin-desktop py-md text-center">
-        <p className="font-label-sm text-label-sm text-on-surface-variant/60">
-          Your conversations are private.
-        </p>
+        <Footer />
       </footer>
     </div>
   );

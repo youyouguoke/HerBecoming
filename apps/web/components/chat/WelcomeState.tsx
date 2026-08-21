@@ -10,11 +10,17 @@ interface WelcomeStateProps {
 
 export function WelcomeState({ onSend, status }: WelcomeStateProps) {
   const [text, setText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = () => {
-    if (!text.trim() || status === "sending" || status === "streaming") return;
-    onSend(text);
+  const handleSubmit = async () => {
+    if (!text.trim() || status === "sending" || status === "streaming" || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onSend(text);
+    } finally {
+      setIsSubmitting(false);
+    }
     setText("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
@@ -73,13 +79,24 @@ export function WelcomeState({ onSend, status }: WelcomeStateProps) {
             </div>
             <button
               onClick={handleSubmit}
-              disabled={!text.trim() || status === "sending"}
-              className="bg-primary text-on-primary px-6 py-3 rounded-full font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-all flex items-center gap-2 disabled:opacity-50"
+              disabled={!text.trim() || status === "sending" || isSubmitting}
+              className="bg-primary text-on-primary px-6 py-3 rounded-full font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-all flex items-center gap-2 disabled:opacity-60 min-w-[130px] justify-center"
             >
-              Reflect
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
+              {status === "sending" || isSubmitting ? (
+                <>
+                  <svg className="w-4 h-4" style={{ animation: "spin 1s linear infinite" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 7v-5h-.581m0 7a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Reflecting</span>
+                </>
+              ) : (
+                <>
+                  <span>Reflect</span>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                  </svg>
+                </>
+              )}
             </button>
           </div>
         </div>
