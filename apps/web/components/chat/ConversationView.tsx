@@ -26,7 +26,7 @@ export function ConversationView({ messages, status, error, onRetry }: Conversat
   const showTyping = status === "sending" || status === "streaming";
 
   return (
-    <div ref={scrollRef} className="w-full max-w-3xl flex flex-col gap-xl pt-8 pb-4 overflow-y-auto">
+    <div ref={scrollRef} className="w-full max-w-3xl flex-1 flex flex-col gap-xl pt-8 pb-4 overflow-y-auto">
       {messages.map((msg) =>
         msg.role === "user" ? (
           <UserMessage key={msg.id} content={msg.content} />
