@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer } from "@/components/ui/Footer";
 
 export const metadata: Metadata = {
   title: "Terms of Service | HerBecoming",
@@ -9,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-on-background">
+    <div className="flex flex-col flex-1 bg-background text-on-background">
       <header className="w-full px-margin-mobile md:px-margin-desktop py-md max-w-[1140px] mx-auto flex justify-between items-center">
         <Link href="/" className="font-headline-md text-headline-md text-primary">
           HerBecoming
@@ -54,7 +53,6 @@ export default function TermsPage() {
           </p>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

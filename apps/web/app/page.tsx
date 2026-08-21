@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { Footer } from "@/components/ui/Footer";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-on-background">
+    <div className="flex flex-col flex-1 bg-background text-on-background">
       <header className="w-full px-margin-mobile md:px-margin-desktop py-md max-w-[1140px] mx-auto flex justify-between items-center">
         <span className="font-headline-md text-headline-md text-primary">HerBecoming</span>
         <Link
@@ -36,9 +35,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <footer className="w-full px-margin-mobile md:px-margin-desktop py-md text-center">
-        <Footer />
-      </footer>
     </div>
   );
 }

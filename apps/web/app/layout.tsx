@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Footer } from "@/components/ui/Footer";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -29,7 +30,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
-      <body className="antialiased bg-background text-on-background">{children}</body>
+      <body className="antialiased bg-background text-on-background flex flex-col min-h-screen">
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

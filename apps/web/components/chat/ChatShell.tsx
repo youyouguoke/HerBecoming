@@ -1,6 +1,7 @@
 "use client";
 
 import { useChat } from "@/lib/hooks/useChat";
+import { Footer } from "@/components/ui/Footer";
 import { ChatHeader } from "./ChatHeader";
 import { WelcomeState } from "./WelcomeState";
 import { ConversationView } from "./ConversationView";
@@ -28,7 +29,7 @@ export function ChatShell() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-on-background">
+    <div className="flex flex-col min-h-screen bg-background text-on-background pb-28 md:pb-24">
       <ChatHeader onNewConversation={startNewConversation} />
       <main className="flex-1 flex flex-col items-center w-full px-margin-mobile md:px-margin-desktop pb-40 md:pb-48">
         {isEmpty ? (
