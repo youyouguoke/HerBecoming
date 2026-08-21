@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HerBecoming - Immediate Support</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#f1ede7",
+                      "on-primary-fixed": "#33110d",
+                      "tertiary-container": "#aa9a93",
+                      "primary-fixed": "#ffdad5",
+                      "on-primary-container": "#522925",
+                      "primary": "#82524c",
+                      "on-secondary-fixed-variant": "#6d372c",
+                      "surface-container-high": "#ebe8e2",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-low": "#f7f3ed",
+                      "secondary-fixed-dim": "#ffb4a4",
+                      "inverse-surface": "#31302d",
+                      "on-primary-fixed-variant": "#673b36",
+                      "error": "#ba1a1a",
+                      "background": "#fdf9f3",
+                      "error-container": "#ffdad6",
+                      "inverse-on-surface": "#f4f0ea",
+                      "on-secondary": "#ffffff",
+                      "secondary-container": "#feb1a0",
+                      "on-error-container": "#93000a",
+                      "surface-variant": "#e6e2dc",
+                      "on-secondary-fixed": "#370e06",
+                      "surface-bright": "#fdf9f3",
+                      "outline": "#847371",
+                      "secondary-fixed": "#ffdad3",
+                      "outline-variant": "#d6c2bf",
+                      "tertiary": "#695c56",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#f6b7af",
+                      "tertiary-fixed-dim": "#d4c3bc",
+                      "tertiary-fixed": "#f1dfd7",
+                      "on-surface-variant": "#514442",
+                      "surface-dim": "#dddad4",
+                      "on-tertiary-fixed": "#231a15",
+                      "on-surface": "#1c1c18",
+                      "inverse-primary": "#f6b7af",
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#c98f88",
+                      "on-background": "#1c1c18",
+                      "on-tertiary-fixed-variant": "#50443f",
+                      "on-secondary-container": "#794135",
+                      "secondary": "#8a4e41",
+                      "on-tertiary-container": "#3d322d",
+                      "surface": "#fdf9f3",
+                      "surface-container-highest": "#e6e2dc",
+                      "surface-tint": "#82524c",
+                      "on-primary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "24px",
+                      "xl": "80px",
+                      "sm": "12px",
+                      "margin-desktop": "120px",
+                      "unit": "8px",
+                      "xs": "4px",
+                      "margin-mobile": "20px",
+                      "gutter": "24px",
+                      "lg": "48px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "DM Sans"
+                      ],
+                      "label-sm": [
+                              "DM Sans"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "headline-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "label-md": [
+                              "DM Sans"
+                      ],
+                      "headline-md": [
+                              "Playfair Display"
+                      ],
+                      "body-md": [
+                              "DM Sans"
+                      ],
+                      "display": [
+                              "Playfair Display"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+          font-variation-settings: 'FILL' 1;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col items-center justify-center py-xl">
+<!-- Minimal Header / No Nav for transactional/safety screen -->
+<header class="w-full absolute top-0 left-0 p-lg text-center">
+<h1 class="font-headline-md text-headline-md text-primary opacity-80">HerBecoming</h1>
+</header>
+<main class="w-full max-w-[800px] px-margin-desktop md:px-lg flex flex-col gap-xl">
+<!-- Hero Section -->
+<section class="text-center flex flex-col gap-md">
+<div class="inline-flex justify-center mb-sm">
+<span class="material-symbols-outlined fill text-tertiary-container" style="font-size: 48px;">vital_signs</span>
+</div>
+<h2 class="font-display text-display text-on-surface">You don’t have to handle this alone.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[600px] mx-auto">
+                If you are feeling overwhelmed, unsafe, or in crisis, there are people ready to listen and help right now. Reaching out is the bravest first step.
+            </p>
+</section>
+<!-- Immediate Support Section -->
+<section class="flex flex-col gap-md">
+<h3 class="font-headline-lg text-headline-lg border-b border-surface-variant pb-sm">Get immediate support</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Resource Card 1 -->
+<div class="bg-surface-container-low p-lg rounded-xl border border-surface-variant hover:border-outline-variant transition-colors group">
+<div class="flex items-start gap-md mb-md">
+<span class="material-symbols-outlined text-primary text-3xl">call</span>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface">National Crisis Lifeline</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">24/7, free and confidential support for people in distress.</p>
+</div>
+</div>
+<a class="inline-flex items-center justify-center w-full bg-primary text-on-primary font-label-md text-label-md py-sm px-md rounded-full hover:opacity-90 transition-opacity" href="tel:988">
+                        Call 988
+                    </a>
+</div>
+<!-- Resource Card 2 -->
+<div class="bg-surface-container-low p-lg rounded-xl border border-surface-variant hover:border-outline-variant transition-colors group">
+<div class="flex items-start gap-md mb-md">
+<span class="material-symbols-outlined text-primary text-3xl">sms</span>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Crisis Text Line</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Connect with a volunteer Crisis Counselor 24/7.</p>
+</div>
+</div>
+<a class="inline-flex items-center justify-center w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-sm px-md rounded-full hover:bg-primary-fixed-dim transition-colors" href="sms:741741">
+                        Text HOME to 741741
+                    </a>
+</div>
+<!-- Resource Card 3 -->
+<div class="bg-surface-container-low p-lg rounded-xl border border-surface-variant hover:border-outline-variant transition-colors group md:col-span-2 flex flex-col md:flex-row items-center justify-between gap-md">
+<div class="flex items-start gap-md">
+<span class="material-symbols-outlined text-primary text-3xl">local_hospital</span>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Emergency Services</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">If you are in immediate physical danger or need urgent medical attention.</p>
+</div>
+</div>
+<a class="inline-flex items-center justify-center whitespace-nowrap bg-error text-on-error font-label-md text-label-md py-sm px-xl rounded-full hover:opacity-90 transition-opacity min-w-[200px]" href="tel:911">
+                        Call 911
+                    </a>
+</div>
+</div>
+</section>
+<!-- Gentle Closing -->
+<section class="text-center mt-lg pt-lg border-t border-surface-variant">
+<p class="font-body-md text-body-md text-on-surface-variant italic">
+                Please remember that seeking help is a sign of strength. Take a deep breath, and connect with someone who can support you.
+            </p>
+<a class="inline-flex items-center gap-xs mt-md text-secondary font-label-md text-label-md hover:text-primary transition-colors" href="/">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                Return to previous page
+            </a>
+</section>
+</main>
+</body></html>

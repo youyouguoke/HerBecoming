@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Active Conversation - HerBecoming</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#f1ede7",
+                    "on-primary-fixed": "#33110d",
+                    "tertiary-container": "#aa9a93",
+                    "primary-fixed": "#ffdad5",
+                    "on-primary-container": "#522925",
+                    "primary": "#82524c",
+                    "on-secondary-fixed-variant": "#6d372c",
+                    "surface-container-high": "#ebe8e2",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f7f3ed",
+                    "secondary-fixed-dim": "#ffb4a4",
+                    "inverse-surface": "#31302d",
+                    "on-primary-fixed-variant": "#673b36",
+                    "error": "#ba1a1a",
+                    "background": "#fdf9f3",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f4f0ea",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#feb1a0",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e6e2dc",
+                    "on-secondary-fixed": "#370e06",
+                    "surface-bright": "#fdf9f3",
+                    "outline": "#847371",
+                    "secondary-fixed": "#ffdad3",
+                    "outline-variant": "#d6c2bf",
+                    "tertiary": "#695c56",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#f6b7af",
+                    "tertiary-fixed-dim": "#d4c3bc",
+                    "tertiary-fixed": "#f1dfd7",
+                    "on-surface-variant": "#514442",
+                    "surface-dim": "#dddad4",
+                    "on-tertiary-fixed": "#231a15",
+                    "on-surface": "#1c1c18",
+                    "inverse-primary": "#f6b7af",
+                    "on-tertiary": "#ffffff",
+                    "primary-container": "#c98f88",
+                    "on-background": "#1c1c18",
+                    "on-tertiary-fixed-variant": "#50443f",
+                    "on-secondary-container": "#794135",
+                    "secondary": "#8a4e41",
+                    "on-tertiary-container": "#3d322d",
+                    "surface": "#fdf9f3",
+                    "surface-container-highest": "#e6e2dc",
+                    "surface-tint": "#82524c",
+                    "on-primary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "24px",
+                    "xl": "80px",
+                    "sm": "12px",
+                    "margin-desktop": "120px",
+                    "unit": "8px",
+                    "xs": "4px",
+                    "margin-mobile": "20px",
+                    "gutter": "24px",
+                    "lg": "48px"
+            },
+            "fontFamily": {
+                    "body-lg": [
+                            "DM Sans"
+                    ],
+                    "label-sm": [
+                            "DM Sans"
+                    ],
+                    "headline-lg": [
+                            "Playfair Display"
+                    ],
+                    "headline-lg-mobile": [
+                            "Playfair Display"
+                    ],
+                    "label-md": [
+                            "DM Sans"
+                    ],
+                    "headline-md": [
+                            "Playfair Display"
+                    ],
+                    "body-md": [
+                            "DM Sans"
+                    ],
+                    "display": [
+                            "Playfair Display"
+                    ]
+            },
+            "fontSize": {
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "500"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        /* Custom Scrollbar for elegant feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.surface-variant');
+            border-radius: theme('borderRadius.full');
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline-variant');
+        }
+
+        /* Script format line */
+        .mentor-line {
+            position: relative;
+        }
+        .mentor-line::before {
+            content: '';
+            position: absolute;
+            left: -16px;
+            top: 4px;
+            bottom: 4px;
+            width: 3px;
+            background-color: theme('colors.primary-container');
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-background dark:bg-background flat no-shadows w-full">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md max-w-[1140px] mx-auto border-b-0">
+<!-- Left: Brand Anchor -->
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="tempest" data-weight="fill" style="font-variation-settings: 'FILL' 1;">qr_code_2</span>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim tracking-tight">HerBecoming</h1>
+</div>
+<!-- Center: Navigation (Hidden on Mobile, flex on Desktop) -->
+<nav class="hidden md:flex gap-8">
+<a class="text-on-surface-variant dark:text-surface-variant font-label-md text-label-md hover:opacity-80 transition-opacity scale-95 active:transition-transform" href="#">Journal</a>
+<a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary font-label-md text-label-md hover:opacity-80 transition-opacity scale-95 active:transition-transform pb-1" href="#">Mentor</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-label-md text-label-md hover:opacity-80 transition-opacity scale-95 active:transition-transform" href="#">Growth</a>
+</nav>
+<!-- Right: Actions -->
+<div class="flex items-center gap-4">
+<button class="text-primary dark:text-primary-fixed font-label-md text-label-md hover:opacity-80 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+<span class="hidden md:inline">New Conversation</span>
+</button>
+<button class="text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity ml-2 rounded-full bg-surface-container p-2 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center w-full px-margin-mobile md:px-margin-desktop pb-[200px]">
+<!-- Conversation Area -->
+<div class="w-full max-w-3xl mt-xl flex flex-col gap-xl">
+<!-- User Prompt -->
+<div class="w-full flex justify-end">
+<div class="max-w-[85%] bg-[#F5E7DF] rounded-2xl rounded-tr-sm px-6 py-5 shadow-sm border border-[#E8DCD2]">
+<p class="font-body-lg text-body-lg text-on-surface">
+                        我的男朋友希望我辞掉现在的工作跟他去另一个城市，但我其实不太想去。
+                    </p>
+</div>
+</div>
+<!-- Mentor Response (Editorial Script Format) -->
+<div class="w-full flex justify-start">
+<div class="max-w-[90%] mentor-line pl-6 py-2">
+<h3 class="font-headline-md text-headline-md text-primary mb-4 italic">Clara (Mentor)</h3>
+<div class="font-body-lg text-body-lg text-on-surface space-y-6 opacity-90 leading-relaxed">
+<p>这是一个非常深刻且常见的人生岔路口。我能感觉到你在描述这件事时的犹豫。在关系与个人职业认同之间做出选择，从来都不是一件简单的事，因为它触及到我们最核心的自我定义。</p>
+<p>“不太想去”是一个非常重要的内在信号。这可能不仅仅是对换城市或换工作的抗拒，而是对“为了另一个人而改变自己人生轨迹”这种模式的本能警觉。你的直觉在保护你的某种独立性。</p>
+<p>在做决定之前，也许我们可以先不把这看作一个非黑即白的选择（去，或者分手），而是把它当成一个探索自我的契机。不妨问自己几个问题：</p>
+<ul class="list-disc pl-5 space-y-2 text-on-surface-variant">
+<li>现在这份工作，最让你舍不得的是什么？是成就感、安全感，还是某种无可替代的连接？</li>
+<li>如果你真的去了另一座城市，你最害怕失去的是什么？</li>
+<li>在这个提议中，你感觉自己的需求和声音被足够重视了吗？</li>
+</ul>
+<p>爱情很珍贵，但建立在牺牲自我成长上的妥协，往往会在未来以隐秘的怨恨形式爆发。你可以慢慢来，理清这些情绪，不用急着立刻给出一个完美的答复。</p>
+</div>
+</div>
+</div>
+<!-- Example Follow-up Suggestions (Chips) -->
+<div class="w-full flex flex-wrap gap-3 mt-4 ml-6">
+<button class="px-4 py-2 bg-[#EBD8D2] text-[#695c56] rounded-full font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors border border-transparent hover:border-primary-fixed-dim">
+                    如何向他表达我的顾虑？
+                </button>
+<button class="px-4 py-2 bg-[#EBD8D2] text-[#695c56] rounded-full font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors border border-transparent hover:border-primary-fixed-dim">
+                    我该怎么判断自己是真的不想去，还是害怕未知？
+                </button>
+</div>
+</div>
+</main>
+<!-- Footer Composer Area (Fixed Bottom) -->
+<footer class="fixed bottom-0 left-0 w-full bg-gradient-to-t from-background via-background to-transparent pt-12 pb-6 px-margin-mobile md:px-margin-desktop z-40 hidden md:block">
+<div class="max-w-3xl mx-auto flex flex-col gap-2 relative">
+<!-- Usage Indicator -->
+<div class="text-center mb-1">
+<span class="font-label-sm text-label-sm text-tertiary">2 free questions remaining today</span>
+</div>
+<!-- Input Box -->
+<div class="relative w-full bg-surface-container rounded-2xl border border-outline-variant focus-within:border-[#c98f88] transition-colors shadow-[0_12px_32px_rgba(62,51,46,0.04)]">
+<textarea class="w-full bg-transparent border-none focus:ring-0 resize-none py-4 pl-5 pr-14 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 min-h-[60px] max-h-[200px]" placeholder="Share your thoughts..." rows="1" style="overflow-y: hidden;"></textarea>
+<button class="absolute right-3 bottom-3 p-2 bg-primary text-on-primary rounded-xl hover:bg-secondary transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+<span class="material-symbols-outlined text-[20px]" data-icon="send">send</span>
+</button>
+</div>
+<div class="text-center mt-2">
+<span class="font-label-sm text-label-sm text-outline/60">Mentorship AI may provide thoughtful but imperfect perspectives.</span>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<div class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface-container dark:bg-surface-container-high docked full-width bottom-0 rounded-t-xl shadow-sm pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant p-2 hover:bg-surface-variant dark:hover:bg-inverse-surface transition-all duration-300 ease-in-out w-16 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="auto_stories">auto_stories</span>
+<span class="font-label-sm text-[10px] text-center">Journal</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full p-2 hover:bg-surface-variant dark:hover:bg-inverse-surface transition-all duration-300 ease-in-out w-20 shadow-sm relative -top-3" href="#">
+<span class="material-symbols-outlined mb-1 text-xl" data-icon="tempest" data-weight="fill" style="font-variation-settings: 'FILL' 1;">qr_code_2</span>
+<span class="font-label-sm text-[11px] text-center font-bold">Mentor</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant p-2 hover:bg-surface-variant dark:hover:bg-inverse-surface transition-all duration-300 ease-in-out w-16 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-label-sm text-[10px] text-center">Growth</span>
+</a>
+</div>
+<script>
+        // Auto-resize textarea
+        const tx = document.getElementsByTagName("textarea");
+        for (let i = 0; i < tx.length; i++) {
+            tx[i].setAttribute("style", "height:" + (tx[i].scrollHeight) + "px;overflow-y:hidden;");
+            tx[i].addEventListener("input", OnInput, false);
+        }
+
+        function OnInput() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + "px";
+        }
+    </script>
+</body></html>
