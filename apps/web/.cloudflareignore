@@ -1,0 +1,10 @@
+node_modules
+.next
+.vercel
+.env*.local
+*.log
+*.db
+*.db-journal
+scripts/build-frontend.sh
+next.config.server.mjs
+next.config.static.mjs

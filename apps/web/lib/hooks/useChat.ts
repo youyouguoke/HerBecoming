@@ -74,7 +74,9 @@ export function useChat() {
       setError(null);
 
       try {
-        const res = await fetch("/api/chat", {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+        const endpoint = apiUrl ? `${apiUrl}/api/chat` : "/api/chat";
+        const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

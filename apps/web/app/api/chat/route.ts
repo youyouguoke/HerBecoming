@@ -6,17 +6,42 @@ import { nanoid } from "nanoid";
 // Guest daily quota
 const DAILY_FREE_LIMIT = 3;
 
+const ALLOWED_ORIGINS = [
+  "https://herbecoming.app",
+  "https://www.herbecoming.app",
+  "https://herbecoming.pages.dev",
+  "http://localhost:3000",
+  "http://localhost:8788",
+];
+
+function corsHeaders(origin: string | null) {
+  const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowed,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Vary": "Origin",
+  };
+}
+
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders(req.headers.get("origin")),
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { sessionId, messageId, content, anonymous = true } = body;
 
     if (!content || typeof content !== "string") {
-      return NextResponse.json({ error: "Missing content" }, { status: 400 });
+      return NextResponse.json({ error: "Missing content" }, { status: 400, headers: corsHeaders(req.headers.get("origin")) });
     }
 
     if (!anonymous) {
-      return NextResponse.json({ error: "Login required" }, { status: 401 });
+      return NextResponse.json({ error: "Login required" }, { status: 401, headers: corsHeaders(req.headers.get("origin")) });
     }
 
     // 1. Get or create anonymous session
@@ -57,7 +82,7 @@ export async function POST(req: NextRequest) {
           error: "DAILY_LIMIT_REACHED",
           message: "You've used your 3 free questions for today. Sign in to continue.",
         },
-        { status: 429 }
+        { status: 429, headers: corsHeaders(req.headers.get("origin")) }
       );
     }
 
@@ -135,16 +160,19 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return NextResponse.json({
-      ...response,
-      conversationId: conversation.id,
-      sessionId: session.id,
-    });
+    return NextResponse.json(
+      {
+        ...response,
+        conversationId: conversation.id,
+        sessionId: session.id,
+      },
+      { headers: corsHeaders(req.headers.get("origin")) }
+    );
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(
       { error: "Internal server error", details: String(error) },
-      { status: 500 }
+      { status: 500, headers: corsHeaders(req.headers.get("origin")) }
     );
   }
 }

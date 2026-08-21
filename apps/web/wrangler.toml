@@ -1,0 +1,11 @@
+name = "herbecoming"
+compatibility_date = "2025-08-20"
+pages_build_output_dir = ".vercel/output/static"
+
+# Environment variables for Pages (public vars used by the static export)
+[env.production.vars]
+NEXT_PUBLIC_API_URL = "https://api.herbecoming.app"
+
+# Pages only supports "production" and "preview" named environments.
+# [env.staging.vars]
+# NEXT_PUBLIC_API_URL = "https://api-staging.herbecoming.app"
