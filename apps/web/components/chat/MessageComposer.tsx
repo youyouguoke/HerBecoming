@@ -59,7 +59,7 @@ export function MessageComposer({
               </span>
             </div>
           )}
-          <div className="relative w-full bg-surface-container rounded-2xl border border-outline-variant focus-within:border-primary-container transition-colors shadow-ambient">
+          <div className="relative w-full bg-surface-container rounded-2xl border border-outline-variant focus-within:border-primary transition-colors shadow-ambient">
             <textarea
               ref={textareaRef}
               value={text}
@@ -72,7 +72,7 @@ export function MessageComposer({
               aria-label="Share your thoughts"
               placeholder="Share your thoughts..."
               disabled={isRateLimited}
-              className="w-full bg-transparent border-none focus:ring-0 resize-none py-4 pl-5 pr-14 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 min-h-[60px] max-h-[128px] disabled:opacity-60"
+              className="w-full bg-transparent border-none focus:ring-0 focus:outline-none resize-none py-4 pl-5 pr-14 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 min-h-[60px] max-h-[128px] disabled:opacity-60"
               style={{ overflow: "hidden" }}
             />
             <button
@@ -100,7 +100,7 @@ export function MessageComposer({
         </div>
 
         <div className="md:hidden fixed bottom-0 w-full bg-background/90 backdrop-blur-md z-40 pb-6 pt-4 px-margin-mobile border-t border-surface-variant/30">
-          <div className="max-w-[1140px] mx-auto flex items-end gap-sm bg-surface-container rounded-3xl p-2 pl-4 focus-within:ring-1 focus-within:ring-primary-container transition-shadow">
+          <div className="max-w-[1140px] mx-auto flex items-end gap-sm bg-surface-container rounded-2xl border border-outline-variant focus-within:border-primary transition-colors p-2 pl-4">
             <button aria-label="Add attachment" className="text-on-surface-variant p-2 hover:text-primary transition-colors mb-0.5">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -117,7 +117,7 @@ export function MessageComposer({
               aria-label="Share your thoughts"
               placeholder="Share your thoughts..."
               disabled={isRateLimited}
-              className="w-full bg-transparent border-none focus:ring-0 resize-none font-body-md text-on-surface placeholder:text-outline-variant py-3 max-h-32 min-h-[44px]"
+              className="w-full bg-transparent border-none focus:ring-0 focus:outline-none resize-none font-body-md text-on-surface placeholder:text-outline-variant py-3 max-h-32 min-h-[44px]"
               style={{ overflow: "hidden" }}
             />
             <button

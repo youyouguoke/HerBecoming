@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { runMentorEngine } from "@/lib/mentor/engine";
+import { extractMemoryWithLLM } from "@/lib/mentor/memory/extract";
+import { persistMemory } from "@/lib/mentor/memory/memory";
 import { corsHeaders } from "@/lib/cors";
 import { nanoid } from "nanoid";
 
@@ -17,7 +19,7 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { sessionId, messageId, content, anonymous = true } = body;
+    const { sessionId, messageId, content, anonymous = true, userId } = body;
 
     if (!content || typeof content !== "string") {
       return NextResponse.json({ error: "Missing content" }, { status: 400, headers: corsHeaders(req.headers.get("origin")) });
@@ -104,7 +106,7 @@ export async function POST(req: NextRequest) {
     });
 
     // 6. Save assistant message
-    await prisma.message.create({
+    const assistantMessage = await prisma.message.create({
       data: {
         conversationId: conversation.id,
         role: "assistant",
@@ -120,6 +122,25 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    // 6.5. Async memory extraction (only for logged-in users)
+    if (userId && mentorContext.understanding) {
+      extractMemoryWithLLM({
+        userMessage: content,
+        assistantMessage: response.answer,
+        understanding: mentorContext.understanding,
+      }).then((memory) => {
+        if (memory && memory.shouldSave) {
+          persistMemory({
+            userId,
+            content: memory.content,
+            type: memory.type,
+            sourceMessageId: assistantMessage.id,
+            sourceConversationId: conversation.id,
+          }).catch((err) => console.error("[chat] Memory persistence failed:", err));
+        }
+      }).catch((err) => console.error("[chat] Memory extraction failed:", err));
+    }
 
     // 7. Update usage (not counted for crisis responses)
     if (response.safetyStatus !== "crisis") {

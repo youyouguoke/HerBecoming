@@ -1,11 +1,12 @@
 import { MentorContext, ChatResponse, ReasoningPlan } from "@/lib/mentor/types";
-import fs from "fs";
+import * as fs from "fs";
 
 export interface LLMProvider {
   generateMentorResponse(ctx: MentorContext): Promise<string>;
+  generateRawText(prompt: string, maxTokens?: number): Promise<string>;
 }
 
-function loadMimoConfig(): { baseUrl: string; apiKey: string; model: string } | null {
+export function loadMimoConfig(): { baseUrl: string; apiKey: string; model: string } | null {
   try {
     const raw = fs.readFileSync("/root/.openclaw/openclaw.json", "utf8");
     const config = JSON.parse(raw);
@@ -36,7 +37,25 @@ class MimoProvider implements LLMProvider {
 
   async generateMentorResponse(ctx: MentorContext): Promise<string> {
     const messages = buildOpenAIMessages(ctx);
+    return this.callMessages(messages, 1024, "");
+  }
 
+  async generateRawText(prompt: string, maxTokens = 1024): Promise<string> {
+    return this.callMessages(
+      [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: prompt },
+      ],
+      maxTokens,
+      prompt
+    );
+  }
+
+  private async callMessages(
+    messages: { role: "system" | "user"; content: string }[],
+    maxTokens: number,
+    fallbackPrompt: string
+  ): Promise<string> {
     try {
       const res = await fetch(`${this.baseUrl}/v1/messages`, {
         method: "POST",
@@ -47,7 +66,7 @@ class MimoProvider implements LLMProvider {
         },
         body: JSON.stringify({
           model: this.model,
-          max_tokens: 1024,
+          max_tokens: maxTokens,
           temperature: 0.7,
           system: messages[0].content,
           messages: messages.slice(1).map((m) => ({ role: m.role, content: m.content })),
@@ -63,7 +82,7 @@ class MimoProvider implements LLMProvider {
       return data.content.map((c) => c.text).join("");
     } catch (err) {
       console.warn("MiMo API call failed, falling back to mock provider:", err);
-      return new MockLLMProvider().generateMentorResponse(ctx);
+      return new MockLLMProvider().generateRawText(fallbackPrompt || "Language: en\n", maxTokens);
     }
   }
 }
@@ -100,6 +119,33 @@ export class MockLLMProvider implements LLMProvider {
       : `\n\nA useful next step: ${reasoningPlan.usefulNextStep}\n\n${reasoningPlan.questionToContinue}`;
 
     return `${opening}${perspective}${memorySection}${nextStep}`;
+  }
+
+  async generateRawText(prompt: string, maxTokens = 1024): Promise<string> {
+    // Detect language from the prompt content for deterministic placeholder JSON.
+    const isZh = /[\u4e00-\u9fa5]/.test(prompt) || /语言：\s*zh/i.test(prompt);
+    if (isZh) {
+      return JSON.stringify({
+        whatIsHappening: "用户正在描述自己的处境。",
+        whatUserMayBeFeeling: "可能有复杂情绪，需要更多了解。",
+        relevantPrinciples: ["先理解，再给建议"],
+        conflictingConsiderations: ["信息尚不完整"],
+        whatIsUnknown: ["用户的真实需求和限制"],
+        safestInterpretation: "用户希望被理解，而不是立即获得答案。",
+        usefulNextStep: "继续倾听并澄清关键信息。",
+        questionToContinue: "能多告诉我一些吗？",
+      });
+    }
+    return JSON.stringify({
+      whatIsHappening: "The user is describing their situation.",
+      whatUserMayBeFeeling: "Likely experiencing mixed feelings; more context needed.",
+      relevantPrinciples: ["Understand first, advise second"],
+      conflictingConsiderations: ["Information is still incomplete"],
+      whatIsUnknown: ["The user's real needs and constraints"],
+      safestInterpretation: "The user wants to be understood, not given an immediate answer.",
+      usefulNextStep: "Continue listening and clarify key information.",
+      questionToContinue: "Can you tell me more?",
+    });
   }
 }
 

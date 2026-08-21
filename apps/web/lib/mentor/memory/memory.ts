@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
-import { Memory } from "@prisma/client";
+import { Memory, MemoryType } from "@prisma/client";
+import { getEmbeddingProvider } from "@/lib/mentor/llm/embeddings";
 
 export interface MemoryRetrievalInput {
   userId?: string | null;
@@ -9,21 +10,87 @@ export interface MemoryRetrievalInput {
   topK?: number;
 }
 
+export interface PersistMemoryInput {
+  userId: string;
+  content: string;
+  type: MemoryType;
+  sourceMessageId?: string | null;
+  sourceConversationId?: string | null;
+}
+
 /**
  * MVP memory retrieval.
- * In production this should use vector similarity on memory embeddings.
- * v0.1 uses keyword + domain + recency heuristics.
+ * When a real embedding provider is available, uses pgvector similarity.
+ * Falls back to keyword + domain + recency heuristics.
  */
 export async function retrieveMemories(
   input: MemoryRetrievalInput
 ): Promise<Memory[]> {
   const { userId, userMessage, primaryDomain, topK = 3 } = input;
 
-  // MVP: memories are only persisted for logged-in users.
+  // Memories are only persisted for logged-in users.
   if (!userId) {
     return [];
   }
 
+  const provider = getEmbeddingProvider();
+  if (provider.name !== "keyword-fallback") {
+    try {
+      return await retrieveMemoriesByVector(userId, userMessage, topK, provider);
+    } catch (err) {
+      console.warn("[retrieveMemories] Vector memory retrieval failed, falling back to keyword:", err);
+    }
+  }
+
+  return retrieveMemoriesByKeyword(userId, userMessage, primaryDomain, topK);
+}
+
+async function retrieveMemoriesByVector(
+  userId: string,
+  userMessage: string,
+  topK: number,
+  provider: { embed(text: string): Promise<number[]> }
+): Promise<Memory[]> {
+  const embedding = await provider.embed(userMessage);
+  const vectorLiteral = `[${embedding.join(", ")}]`;
+
+  const rows = await prisma.$queryRawUnsafe<
+    Array<Memory & { distance: number }>
+  >(
+    `
+    SELECT
+      m.id,
+      m."userId",
+      m.type,
+      m.content,
+      m."contentEn",
+      m."sourceMessageId",
+      m."sourceConversationId",
+      m."isArchived",
+      m."isDeleted",
+      m."createdAt",
+      m."updatedAt",
+      m.embedding <-> $1::vector AS distance
+    FROM memories m
+    WHERE m."userId" = $2
+      AND m."isDeleted" = false
+    ORDER BY distance ASC
+    LIMIT $3
+    `,
+    vectorLiteral,
+    userId,
+    topK
+  );
+
+  return rows;
+}
+
+async function retrieveMemoriesByKeyword(
+  userId: string,
+  userMessage: string,
+  primaryDomain: string,
+  topK: number
+): Promise<Memory[]> {
   const keywords = userMessage
     .toLowerCase()
     .replace(/[^\u4e00-\u9fa5a-z0-9\s]/g, " ")
@@ -62,8 +129,46 @@ export async function retrieveMemories(
 }
 
 /**
+ * Persist a memory for a logged-in user, including its embedding.
+ */
+export async function persistMemory(input: PersistMemoryInput): Promise<Memory | null> {
+  const { userId, content, type, sourceMessageId, sourceConversationId } = input;
+
+  if (!content || content.length < 5) return null;
+
+  try {
+    const provider = getEmbeddingProvider();
+    const embedding = await provider.embed(content);
+    const vectorLiteral = `[${embedding.join(", ")}]`;
+
+    const memory = await prisma.memory.create({
+      data: {
+        userId,
+        type,
+        content,
+        sourceMessageId: sourceMessageId || null,
+        sourceConversationId: sourceConversationId || null,
+      },
+    });
+
+    // Store embedding via raw SQL because Prisma does not yet support vector columns natively.
+    await prisma.$executeRawUnsafe(
+      `UPDATE memories SET embedding = $1::vector WHERE id = $2`,
+      vectorLiteral,
+      memory.id
+    );
+
+    return memory;
+  } catch (err) {
+    console.error("[persistMemory] Failed to persist memory:", err);
+    return null;
+  }
+}
+
+/**
  * Async memory extraction candidate.
  * Returns a candidate memory string or null.
+ * @deprecated Prefer extractMemoryWithLLM in extract.ts.
  */
 export function extractMemoryCandidate(
   userMessage: string,

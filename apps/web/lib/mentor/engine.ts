@@ -43,7 +43,11 @@ export async function runMentorEngine(input: ChatEngineInput): Promise<{
   }));
 
   // 2. Safety Detection
-  const safety = await detectSafety(userMessage, history.slice(-3).map((h) => h.content).join("\n"));
+  const safety = await detectSafety(
+    userMessage,
+    history.slice(-3).map((h) => h.content).join("\n"),
+    { anonymousSessionId, conversationId }
+  );
 
   if (safety.action === "crisis") {
     const crisisResponse = safety.crisisResponse ??
@@ -117,7 +121,11 @@ export async function runMentorEngine(input: ChatEngineInput): Promise<{
   }
 
   // 9. Output Safety (lightweight MVP check)
-  const outputSafety = await detectSafety(answer, userMessage);
+  const outputSafety = await detectSafety(
+    answer,
+    userMessage,
+    { anonymousSessionId, conversationId }
+  );
   if (outputSafety.action === "crisis") {
     answer = "I want to make sure you're safe. If you're in immediate danger, please contact local emergency services or a trusted person near you.";
   }

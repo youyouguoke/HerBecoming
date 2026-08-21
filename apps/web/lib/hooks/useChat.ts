@@ -147,6 +147,12 @@ export function useChat() {
 
         if (res.status === 429) {
           setStatus("rate_limited");
+          setUsedCount(DAILY_FREE_LIMIT);
+          saveGuestContext({
+            sessionId,
+            conversationId,
+            usedCount: DAILY_FREE_LIMIT,
+          });
           return;
         }
 

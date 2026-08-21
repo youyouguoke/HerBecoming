@@ -29,7 +29,8 @@ export function ChatShell() {
   }
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-background text-on-background pb-28 md:pb-24">
+    <div className="relative flex flex-col flex-1 min-h-0 bg-background text-on-background pb-28 md:pb-24">
+      {isRateLimited && <LoginWall />}
       <ChatHeader onNewConversation={startNewConversation} />
       <main className="flex-1 flex flex-col items-center w-full px-margin-mobile md:px-margin-desktop min-h-0 overflow-hidden">
         {isEmpty ? (
