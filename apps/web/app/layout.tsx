@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Playfair_Display, DM_Sans } from "next/font/google";
 import { Footer } from "@/components/ui/Footer";
 import "./globals.css";
@@ -30,6 +31,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
+      <head>
+        <Script
+          defer
+          data-domain="herbecoming.app"
+          src="https://plausible.shipsolo.io/js/script.js"
+          strategy="afterInteractive"
+        />
+      </head>
       <body className="antialiased bg-background text-on-background flex flex-col min-h-screen">
         {children}
         <Footer />
