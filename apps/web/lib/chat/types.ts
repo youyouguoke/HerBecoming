@@ -11,6 +11,9 @@ export interface ChatMessage {
   messageId?: string;
   conversationId?: string;
   createdAt?: string;
+  feedback?: {
+    helpful?: boolean | null;
+  };
 }
 
 export interface ChatResponse {

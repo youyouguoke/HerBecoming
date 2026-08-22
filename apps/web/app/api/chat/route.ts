@@ -129,6 +129,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // 6.1 Return assistant message id for feedback linking
+    response.assistantMessageId = assistantMessage.id;
+
     // 6.5. Async memory extraction (only for logged-in users)
     if (userId && mentorContext.understanding) {
       extractMemoryWithLLM({

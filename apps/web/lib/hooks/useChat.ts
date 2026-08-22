@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import { nanoid } from "nanoid";
 import { ChatMessage, ChatResponse, ChatStatus, UsageState } from "@/lib/chat/types";
 
@@ -12,6 +13,12 @@ interface GuestContext {
   sessionId: string;
   conversationId?: string;
   usedCount: number;
+}
+
+interface ConversationSummary {
+  id: string;
+  title: string | null;
+  updatedAt: string;
 }
 
 function loadGuestContext(): GuestContext | null {
@@ -46,12 +53,16 @@ function saveLocalMessages(messages: ChatMessage[]) {
   localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(messages));
 }
 
+function apiUrl(): string {
+  return process.env.NEXT_PUBLIC_API_URL || "";
+}
+
 async function fetchHistory(sessionId: string, conversationId: string): Promise<ChatMessage[]> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-    const endpoint = apiUrl
-      ? `${apiUrl}/api/chat/history?sessionId=${encodeURIComponent(sessionId)}&conversationId=${encodeURIComponent(conversationId)}`
-      : `/api/chat/history?sessionId=${encodeURIComponent(sessionId)}&conversationId=${encodeURIComponent(conversationId)}`;
+    const base = apiUrl();
+    const endpoint = base
+      ? `${base}/api/chat/history?type=messages&sessionId=${encodeURIComponent(sessionId)}&conversationId=${encodeURIComponent(conversationId)}`
+      : `/api/chat/history?type=messages&sessionId=${encodeURIComponent(sessionId)}&conversationId=${encodeURIComponent(conversationId)}`;
     const res = await fetch(endpoint);
     if (!res.ok) return [];
     const data = await res.json();
@@ -61,26 +72,102 @@ async function fetchHistory(sessionId: string, conversationId: string): Promise<
   }
 }
 
+async function fetchConversations(): Promise<ConversationSummary[]> {
+  try {
+    const base = apiUrl();
+    const endpoint = base ? `${base}/api/chat/history?type=conversations` : "/api/chat/history?type=conversations";
+    const res = await fetch(endpoint);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.conversations || [];
+  } catch {
+    return [];
+  }
+}
+
 export function useChat() {
+  const { status: authStatus, data: authData } = useSession();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<ChatStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string>("");
   const [conversationId, setConversationId] = useState<string>("");
   const [usedCount, setUsedCount] = useState(0);
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+
+  const isAuthenticated = authStatus === "authenticated";
 
   const startNewConversation = useCallback(() => {
     setMessages([]);
     setConversationId("");
     setStatus("idle");
     setError(null);
-    const newSessionId = nanoid();
+    const newSessionId = sessionId || nanoid();
     setSessionId(newSessionId);
     saveGuestContext({ sessionId: newSessionId, usedCount });
     if (typeof window !== "undefined") {
       localStorage.removeItem(MESSAGES_STORAGE_KEY);
     }
-  }, [usedCount]);
+  }, [usedCount, sessionId]);
+
+  const loadConversation = useCallback(async (id: string) => {
+    if (!id) return;
+    setStatus("idle");
+    setError(null);
+
+    if (!isAuthenticated) {
+      // Anonymous: load from local storage only
+      const local = loadLocalMessages();
+      if (local && local.length > 0 && local[0]?.conversationId === id) {
+        setMessages(local);
+        setConversationId(id);
+      }
+      return;
+    }
+
+    // Authenticated: fetch from server
+    try {
+      const base = apiUrl();
+      const endpoint = base
+        ? `${base}/api/chat/history?type=messages&conversationId=${encodeURIComponent(id)}`
+        : `/api/chat/history?type=messages&conversationId=${encodeURIComponent(id)}`;
+      const res = await fetch(endpoint);
+      if (!res.ok) return;
+      const data = await res.json();
+      const loaded: ChatMessage[] = (data.messages || []).map((m: any) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        intent: m.intent || undefined,
+        conversationId: id,
+        messageId: m.id,
+        createdAt: m.createdAt,
+      }));
+      setMessages(loaded);
+      setConversationId(id);
+      saveLocalMessages(loaded);
+    } catch (err) {
+      console.error("[useChat] loadConversation failed:", err);
+    }
+  }, [isAuthenticated]);
+
+  const loadConversations = useCallback(async () => {
+    if (!isAuthenticated) {
+      const local = loadLocalMessages();
+      if (local && local.length > 0 && local[0]?.conversationId) {
+        setConversations([
+          {
+            id: local[0].conversationId,
+            title: null,
+            updatedAt: new Date().toISOString(),
+          },
+        ]);
+      }
+      return;
+    }
+    const list = await fetchConversations();
+    setConversations(list);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const ctx = loadGuestContext();
@@ -108,6 +195,13 @@ export function useChat() {
     }
   }, []);
 
+  // Load conversation list when auth state becomes known
+  useEffect(() => {
+    if (authStatus === "authenticated") {
+      loadConversations();
+    }
+  }, [authStatus, loadConversations]);
+
   const usage: UsageState = useMemo(
     () => ({
       used: usedCount,
@@ -132,8 +226,8 @@ export function useChat() {
       setError(null);
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-        const endpoint = apiUrl ? `${apiUrl}/api/chat` : "/api/chat";
+        const base = apiUrl();
+        const endpoint = base ? `${base}/api/chat` : "/api/chat";
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -141,7 +235,7 @@ export function useChat() {
             sessionId,
             messageId: conversationId || undefined,
             content: userMessage.content,
-            anonymous: true,
+            anonymous: !isAuthenticated,
           }),
         });
 
@@ -176,6 +270,7 @@ export function useChat() {
           retrievedKnowledgeIds: data.knowledgeNodesUsed,
           memoryIds: data.memoriesUsed,
           conversationId: data.conversationId,
+          messageId: data.assistantMessageId || nanoid(),
         };
 
         setMessages((prev) => [...prev, assistantMessage]);
@@ -190,19 +285,53 @@ export function useChat() {
           });
           return next;
         });
+
+        // Refresh conversation list for logged-in users
+        if (isAuthenticated) {
+          loadConversations();
+        }
+
         setStatus("idle");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
         setStatus("error");
       }
     },
-    [sessionId, conversationId]
+    [sessionId, conversationId, isAuthenticated, loadConversations]
   );
 
   const retry = useCallback(() => {
     setStatus("idle");
     setError(null);
   }, []);
+
+  const submitFeedback = useCallback(
+    async (messageId: string, helpful: boolean) => {
+      if (!isAuthenticated || !messageId) return false;
+      try {
+        const base = apiUrl();
+        const endpoint = base ? `${base}/api/chat/feedback` : "/api/chat/feedback";
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messageId, helpful }),
+        });
+        if (!res.ok) return false;
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.messageId === messageId || m.id === messageId
+              ? { ...m, feedback: { ...(m.feedback || {}), helpful } }
+              : m
+          )
+        );
+        return true;
+      } catch (err) {
+        console.error("[useChat] submitFeedback failed:", err);
+        return false;
+      }
+    },
+    [isAuthenticated]
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -222,7 +351,12 @@ export function useChat() {
     sendMessage,
     retry,
     startNewConversation,
+    loadConversation,
+    loadConversations,
+    submitFeedback,
+    conversations,
     sessionId,
     conversationId,
+    isAuthenticated,
   };
 }

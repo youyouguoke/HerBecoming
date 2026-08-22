@@ -1,25 +1,80 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 import { corsHeaders } from "@/lib/cors";
 
 export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders(req.headers.get("origin")),
-  });
+  return new NextResponse(null, { status: 204, headers: corsHeaders(req.headers.get("origin")) });
 }
 
+/**
+ * GET /api/chat/history?type=messages|conversations
+ *
+ * For anonymous users:
+ *   ?sessionId=...&conversationId=...&type=messages
+ *
+ * For logged-in users:
+ *   (auth session) ?type=conversations — list user's conversations
+ *   (auth session) ?conversationId=...&type=messages — messages for a conversation
+ */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type") || "messages";
     const sessionId = searchParams.get("sessionId");
     const conversationId = searchParams.get("conversationId");
 
-    if (!sessionId || !conversationId) {
-      return NextResponse.json(
-        { error: "Missing sessionId or conversationId" },
-        { status: 400, headers: corsHeaders(req.headers.get("origin")) }
-      );
+    const authSession = await auth();
+    const userId = authSession?.user?.id;
+
+    if (type === "conversations") {
+      if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders(req.headers.get("origin")) });
+      }
+
+      const conversations = await prisma.conversation.findMany({
+        where: { userId },
+        orderBy: { updatedAt: "desc" },
+        take: 50,
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      return NextResponse.json({ conversations }, { headers: corsHeaders(req.headers.get("origin")) });
+    }
+
+    // type === "messages"
+    if (!conversationId) {
+      return NextResponse.json({ error: "Missing conversationId" }, { status: 400, headers: corsHeaders(req.headers.get("origin")) });
+    }
+
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+    });
+
+    if (!conversation) {
+      return NextResponse.json({ messages: [] }, { headers: corsHeaders(req.headers.get("origin")) });
+    }
+
+    // Authorization
+    if (conversation.userId) {
+      if (conversation.userId !== userId) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403, headers: corsHeaders(req.headers.get("origin")) });
+      }
+    } else if (conversation.anonymousSessionId) {
+      if (!sessionId) {
+        return NextResponse.json({ error: "Missing sessionId" }, { status: 400, headers: corsHeaders(req.headers.get("origin")) });
+      }
+      const anonSession = await prisma.anonymousSession.findUnique({
+        where: { fingerprintId: sessionId },
+      });
+      if (!anonSession || anonSession.id !== conversation.anonymousSessionId) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403, headers: corsHeaders(req.headers.get("origin")) });
+      }
     }
 
     const messages = await prisma.message.findMany({
@@ -30,37 +85,13 @@ export async function GET(req: NextRequest) {
         role: true,
         content: true,
         intent: true,
-        primaryDomain: true,
-        domains: true,
-        riskLevel: true,
-        retrievedKnowledgeIds: true,
-        memoryIds: true,
         createdAt: true,
       },
     });
 
-    const formatted = messages.map((m) => ({
-      id: m.id,
-      role: m.role === "user" ? "user" : "assistant",
-      content: m.content,
-      intent: m.intent || undefined,
-      primaryDomain: m.primaryDomain || null,
-      domains: m.domains || [],
-      riskLevel: m.riskLevel || undefined,
-      retrievedKnowledgeIds: m.retrievedKnowledgeIds || [],
-      memoryIds: m.memoryIds || [],
-      createdAt: m.createdAt ? m.createdAt.toISOString() : undefined,
-    }));
-
-    return NextResponse.json(
-      { messages: formatted },
-      { headers: corsHeaders(req.headers.get("origin")) }
-    );
+    return NextResponse.json({ messages }, { headers: corsHeaders(req.headers.get("origin")) });
   } catch (error) {
-    console.error("Chat history error:", error);
-    return NextResponse.json(
-      { error: "Internal server error", details: String(error) },
-      { status: 500, headers: corsHeaders(req.headers.get("origin")) }
-    );
+    console.error("[chat/history GET] error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders(req.headers.get("origin")) });
   }
 }

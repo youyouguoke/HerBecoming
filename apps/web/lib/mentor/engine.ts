@@ -58,6 +58,8 @@ export async function runMentorEngine(input: ChatEngineInput): Promise<{
       memoriesUsed: [],
       intent: "crisis",
       safetyStatus: "crisis",
+      suggestedAction: null,
+      assistantMessageId: "",
     };
     return {
       response,
@@ -143,6 +145,7 @@ export async function runMentorEngine(input: ChatEngineInput): Promise<{
       understanding.intent === "decision" && understanding.decisionStage === "pre_decision"
         ? "save_decision"
         : null,
+    assistantMessageId: "", // filled by caller after DB save
   };
 
   return { response, mentorContext };

@@ -12,9 +12,10 @@ interface ConversationViewProps {
   status: ChatStatus;
   error: string | null;
   onRetry: () => void;
+  onFeedback?: (messageId: string, helpful: boolean) => Promise<boolean>;
 }
 
-export function ConversationView({ messages, status, error, onRetry }: ConversationViewProps) {
+export function ConversationView({ messages, status, error, onRetry, onFeedback }: ConversationViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,8 +35,10 @@ export function ConversationView({ messages, status, error, onRetry }: Conversat
           <MentorMessage
             key={msg.id}
             content={msg.content}
-            messageId={msg.messageId}
+            messageId={msg.messageId || msg.id}
             conversationId={msg.conversationId}
+            feedback={msg.feedback}
+            onFeedback={onFeedback}
           />
         )
       )}

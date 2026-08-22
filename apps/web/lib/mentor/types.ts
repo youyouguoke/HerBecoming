@@ -66,4 +66,5 @@ export interface ChatResponse {
   intent: string;
   safetyStatus: RiskLevel;
   suggestedAction?: "save_decision" | "save_reflection" | null;
+  assistantMessageId?: string;
 }

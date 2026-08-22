@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useChat } from "@/lib/hooks/useChat";
 import { Footer } from "@/components/ui/Footer";
 import { ChatHeader } from "./ChatHeader";
@@ -9,6 +10,7 @@ import { MessageComposer } from "./MessageComposer";
 import { MobileNavBar } from "./MobileNavBar";
 import { LoginWall } from "./LoginWall";
 import { CrisisPanel } from "./CrisisPanel";
+import { ConversationListPanel } from "./ConversationListPanel";
 
 export function ChatShell() {
   const {
@@ -20,9 +22,13 @@ export function ChatShell() {
     sendMessage,
     retry,
     startNewConversation,
+    loadConversation,
+    submitFeedback,
+    conversations,
     sessionId,
   } = useChat();
 
+  const [listOpen, setListOpen] = useState(false);
   const isEmpty = messages.length === 0;
 
   if (status === "crisis") {
@@ -32,12 +38,32 @@ export function ChatShell() {
   return (
     <div className="relative flex flex-col flex-1 min-h-0 bg-background text-on-background pb-28 md:pb-24">
       {isRateLimited && <LoginWall anonymousSessionId={sessionId} />}
-      <ChatHeader onNewConversation={startNewConversation} />
+      <ChatHeader
+        onNewConversation={startNewConversation}
+        onToggleHistory={() => setListOpen((v) => !v)}
+      />
       <main className="flex-1 flex flex-col items-center w-full px-margin-mobile md:px-margin-desktop min-h-0 overflow-hidden">
+        <ConversationListPanel
+          open={listOpen}
+          onClose={() => setListOpen(false)}
+          conversations={conversations}
+          activeId={messages[0]?.conversationId || ""}
+          onSelect={(id) => {
+            setListOpen(false);
+            loadConversation(id);
+          }}
+          onNewConversation={startNewConversation}
+        />
         {isEmpty ? (
           <WelcomeState onSend={sendMessage} status={status} />
         ) : (
-          <ConversationView messages={messages} status={status} error={error} onRetry={retry} />
+          <ConversationView
+            messages={messages}
+            status={status}
+            error={error}
+            onRetry={retry}
+            onFeedback={submitFeedback}
+          />
         )}
       </main>
       {!isEmpty && (
