@@ -175,6 +175,7 @@ export function useChat() {
           intent: data.intent,
           retrievedKnowledgeIds: data.knowledgeNodesUsed,
           memoryIds: data.memoriesUsed,
+          conversationId: data.conversationId,
         };
 
         setMessages((prev) => [...prev, assistantMessage]);

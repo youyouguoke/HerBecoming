@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 import { runMentorEngine } from "@/lib/mentor/engine";
 import { extractMemoryWithLLM } from "@/lib/mentor/memory/extract";
@@ -19,13 +20,18 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { sessionId, messageId, content, anonymous = true, userId } = body;
+    const { sessionId, messageId, content, anonymous = true } = body;
 
     if (!content || typeof content !== "string") {
       return NextResponse.json({ error: "Missing content" }, { status: 400, headers: corsHeaders(req.headers.get("origin")) });
     }
 
-    if (!anonymous) {
+    // Authenticated users can send with userId derived from session.
+    const authSession = await auth();
+    const isAuthenticated = !!authSession?.user?.id;
+    const userId = isAuthenticated ? authSession.user.id : undefined;
+
+    if (!anonymous && !userId) {
       return NextResponse.json({ error: "Login required" }, { status: 401, headers: corsHeaders(req.headers.get("origin")) });
     }
 

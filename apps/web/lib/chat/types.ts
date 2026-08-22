@@ -1,6 +1,6 @@
 export interface ChatMessage {
   id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "system" | "safety";
   content: string;
   intent?: string;
   primaryDomain?: string | null;
@@ -8,6 +8,8 @@ export interface ChatMessage {
   riskLevel?: string;
   retrievedKnowledgeIds?: string[];
   memoryIds?: string[];
+  messageId?: string;
+  conversationId?: string;
   createdAt?: string;
 }
 

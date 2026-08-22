@@ -31,7 +31,12 @@ export function ConversationView({ messages, status, error, onRetry }: Conversat
         msg.role === "user" ? (
           <UserMessage key={msg.id} content={msg.content} />
         ) : (
-          <MentorMessage key={msg.id} content={msg.content} />
+          <MentorMessage
+            key={msg.id}
+            content={msg.content}
+            messageId={msg.messageId}
+            conversationId={msg.conversationId}
+          />
         )
       )}
       {showTyping && <TypingIndicator />}
