@@ -2,6 +2,7 @@
 
 import { useState, useRef, KeyboardEvent } from "react";
 import { ChatStatus } from "@/lib/chat/types";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface WelcomeStateProps {
   onSend: (content: string) => void;
@@ -9,6 +10,7 @@ interface WelcomeStateProps {
 }
 
 export function WelcomeState({ onSend, status }: WelcomeStateProps) {
+  const { t, locale } = useI18n();
   const [text, setText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -45,16 +47,16 @@ export function WelcomeState({ onSend, status }: WelcomeStateProps) {
         <h1 className="font-display text-display text-primary">HerBecoming</h1>
         <div className="space-y-sm">
           <p className="font-headline-md text-headline-md text-on-surface">
-            Think clearly. Choose consciously. Grow intentionally.
+            {t("hero.subtitle")}
           </p>
-          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-[540px] mx-auto leading-relaxed">
-            A quiet space to think through the questions that matter.
+          <p className="font-body-md text-body-md text-on-surface-variant max-w-[540px] mx-auto leading-relaxed">
+            {t("hero.free")}
           </p>
         </div>
       </div>
 
       <div className="w-full mt-xl animate-slide-up delay-300">
-        <div className="relative w-full rounded-2xl bg-surface-container-lowest border border-outline-variant hover:border-outline shadow-sm overflow-hidden flex flex-col focus-within:border-primary-container transition-colors">
+        <div className="relative w-full rounded-2xl bg-surface-container-lowest border border-outline-variant hover:border-outline shadow-sm overflow-hidden flex flex-col focus-within:border-primary transition-colors">
           <textarea
             ref={textareaRef}
             value={text}
@@ -64,8 +66,8 @@ export function WelcomeState({ onSend, status }: WelcomeStateProps) {
             }}
             onKeyDown={handleKeyDown}
             rows={1}
-            aria-label="What is on your mind?"
-            placeholder="What's on your mind?"
+            aria-label={t("hero.title")}
+            placeholder={t("chat.placeholder")}
             className="w-full bg-transparent border-none focus:ring-0 resize-none p-md font-body-lg text-body-lg text-on-surface placeholder:text-on-surface-variant/50 min-h-[80px]"
             style={{ overflow: "hidden" }}
           />
@@ -87,11 +89,11 @@ export function WelcomeState({ onSend, status }: WelcomeStateProps) {
                   <svg className="w-4 h-4" style={{ animation: "spin 1s linear infinite" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 7v-5h-.581m0 7a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  <span>Reflecting</span>
+                  <span>{locale === "zh" ? "思考中" : "Reflecting"}</span>
                 </>
               ) : (
                 <>
-                  <span>Reflect</span>
+                  <span>{locale === "zh" ? "反思" : "Reflect"}</span>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                   </svg>
@@ -101,7 +103,7 @@ export function WelcomeState({ onSend, status }: WelcomeStateProps) {
           </div>
         </div>
         <p className="mt-sm font-label-sm text-label-sm text-on-surface-variant/60 text-center animate-fade-in delay-500">
-          Your conversations are private.
+          {t("chat.privacy_notice")}
         </p>
       </div>
     </div>

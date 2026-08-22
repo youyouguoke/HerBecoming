@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Playfair_Display, DM_Sans } from "next/font/google";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Footer } from "@/components/ui/Footer";
+import { I18nProvider } from "@/components/providers/I18nProvider";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -40,8 +42,12 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased bg-background text-on-background flex flex-col min-h-screen">
-        {children}
-        <Footer />
+        <AuthProvider>
+          <I18nProvider>
+            {children}
+            <Footer />
+          </I18nProvider>
+        </AuthProvider>
       </body>
     </html>
   );
