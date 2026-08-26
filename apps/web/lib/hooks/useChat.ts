@@ -5,7 +5,11 @@ import { useSession } from "next-auth/react";
 import { nanoid } from "nanoid";
 import { ChatMessage, ChatResponse, ChatStatus, UsageState } from "@/lib/chat/types";
 
-const DAILY_FREE_LIMIT = 3;
+const DAILY_FREE_LIMIT_ANON = 10;
+const DAILY_FREE_LIMIT_USER=30;
+function getDailyLimit(isAuthenticated: boolean): number {
+  return isAuthenticated ? DAILY_FREE_LIMIT_USER : DAILY_FREE_LIMIT_ANON;
+}
 const STORAGE_KEY = "herbecoming:guest";
 const MESSAGES_STORAGE_KEY = "herbecoming:messages";
 
@@ -54,7 +58,8 @@ function saveLocalMessages(messages: ChatMessage[]) {
 }
 
 function apiUrl(): string {
-  return process.env.NEXT_PUBLIC_API_URL || "";
+  // Static export must use same-origin proxy; absolute backend URL causes CORS/401
+  return "";
 }
 
 async function fetchHistory(sessionId: string, conversationId: string): Promise<ChatMessage[]> {
@@ -94,8 +99,12 @@ export function useChat() {
   const [conversationId, setConversationId] = useState<string>("");
   const [usedCount, setUsedCount] = useState(0);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [showLoginWall, setShowLoginWall] = useState(false);
 
   const isAuthenticated = authStatus === "authenticated";
+
+  const openLoginWall = useCallback(() => setShowLoginWall(true), []);
+  const closeLoginWall = useCallback(() => setShowLoginWall(false), []);
 
   const startNewConversation = useCallback(() => {
     setMessages([]);
@@ -202,18 +211,24 @@ export function useChat() {
     }
   }, [authStatus, loadConversations]);
 
-  const usage: UsageState = useMemo(
-    () => ({
+  const usage: UsageState = useMemo(() => {
+    const limit = getDailyLimit(isAuthenticated);
+    return {
       used: usedCount,
-      remaining: Math.max(0, DAILY_FREE_LIMIT - usedCount),
-      limit: DAILY_FREE_LIMIT,
-    }),
-    [usedCount]
-  );
+      remaining: Math.max(0, limit - usedCount),
+      limit,
+    };
+  }, [usedCount, isAuthenticated]);
 
   const sendMessage = useCallback(
     async (content: string) => {
       if (!sessionId || !content.trim()) return;
+
+      // Anonymous users: prompt sign-in after guest quota is reached
+      if (!isAuthenticated && usedCount >= DAILY_FREE_LIMIT_ANON) {
+        openLoginWall();
+        return;
+      }
 
       const userMessage: ChatMessage = {
         id: nanoid(),
@@ -241,11 +256,11 @@ export function useChat() {
 
         if (res.status === 429) {
           setStatus("rate_limited");
-          setUsedCount(DAILY_FREE_LIMIT);
+          setUsedCount(DAILY_FREE_LIMIT_ANON);
           saveGuestContext({
             sessionId,
             conversationId,
-            usedCount: DAILY_FREE_LIMIT,
+            usedCount: DAILY_FREE_LIMIT_ANON,
           });
           return;
         }
@@ -297,7 +312,7 @@ export function useChat() {
         setStatus("error");
       }
     },
-    [sessionId, conversationId, isAuthenticated, loadConversations]
+    [sessionId, conversationId, isAuthenticated, loadConversations, openLoginWall]
   );
 
   const retry = useCallback(() => {
@@ -340,7 +355,7 @@ export function useChat() {
     }
   }, [messages]);
 
-  const isRateLimited = usedCount >= DAILY_FREE_LIMIT;
+  const isRateLimited = (!isAuthenticated && usedCount >= DAILY_FREE_LIMIT_ANON) || (isAuthenticated && usedCount >= DAILY_FREE_LIMIT_USER);
 
   return {
     messages,
@@ -358,5 +373,8 @@ export function useChat() {
     sessionId,
     conversationId,
     isAuthenticated,
+    showLoginWall,
+    openLoginWall,
+    closeLoginWall,
   };
 }

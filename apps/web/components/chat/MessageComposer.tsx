@@ -17,7 +17,6 @@ interface MessageComposerProps {
 export function MessageComposer({
   onSend,
   status,
-  usage,
   isRateLimited,
 }: MessageComposerProps) {
   const { t, locale } = useI18n();
@@ -58,12 +57,14 @@ export function MessageComposer({
     <>
       <footer className="w-full bg-background border-t border-outline-variant/30 z-40 shrink-0">
         <div className="hidden md:block max-w-3xl mx-auto px-margin-desktop py-4">
-          {usage.used > 0 && usage.used < usage.limit && (
-            <div className="text-center mb-1">
-              <span className="font-label-sm text-label-sm text-tertiary">
-                {t("chat.free_remaining").replace("{remaining}", String(usage.remaining)).replace("{plural}", usage.remaining === 1 ? "" : locale === "zh" ? "个问题" : "s")}
-              </span>
+          {isRateLimited ? (
+            <div className="text-center py-3">
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                {t("chat.limit_reached_body")}
+              </p>
             </div>
+          ) : (
+            <></>
           )}
           <div className="relative w-full bg-surface-container rounded-2xl border border-outline-variant focus-within:border-primary transition-colors shadow-ambient">
             <textarea
@@ -113,6 +114,13 @@ export function MessageComposer({
         </div>
 
         <div className="md:hidden w-full bg-background pb-4 pt-4 px-margin-mobile border-t border-surface-variant/30">
+          {isRateLimited && (
+            <div className="max-w-[1140px] mx-auto text-center mb-3">
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                {t("chat.limit_reached_body")}
+              </p>
+            </div>
+          )}
           <div className="max-w-[1140px] mx-auto flex items-end gap-sm bg-surface-container rounded-2xl border border-outline-variant focus-within:border-primary transition-colors p-2 pl-4">
             <textarea
               value={text}
