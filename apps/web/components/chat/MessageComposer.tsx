@@ -27,14 +27,15 @@ export function MessageComposer({
 
   const handleSubmit = async () => {
     if (!text.trim() || status === "sending" || status === "streaming" || isRateLimited || isSubmitting) return;
+    const message = text;
+    setText("");
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
     setIsSubmitting(true);
     try {
-      await onSend(text);
+      await onSend(message);
     } finally {
       setIsSubmitting(false);
     }
-    setText("");
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
