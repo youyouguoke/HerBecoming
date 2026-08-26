@@ -22,20 +22,14 @@ export function MessageComposer({
 }: MessageComposerProps) {
   const { t, locale } = useI18n();
   const [text, setText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = async () => {
-    if (!text.trim() || status === "sending" || status === "streaming" || isRateLimited || isSubmitting) return;
+  const handleSubmit = () => {
+    if (!text.trim() || status === "sending" || status === "streaming" || isRateLimited) return;
     const message = text;
     setText("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
-    setIsSubmitting(true);
-    try {
-      await onSend(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSend(message);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -95,11 +89,11 @@ export function MessageComposer({
               />
               <button
                 onClick={handleSubmit}
-                disabled={!text.trim() || status === "sending" || isRateLimited || isSubmitting}
+                disabled={!text.trim() || status === "sending" || isRateLimited}
                 className="p-2 bg-primary text-on-primary rounded-xl hover:bg-secondary transition-colors flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed"
                 aria-label={t("chat.send")}
               >
-                {status === "sending" || isSubmitting ? (
+                {status === "sending" ? (
                   <svg className="w-5 h-5" style={{ animation: "spin 1s linear infinite" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 7v-5h-.581m0 7a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
@@ -142,11 +136,11 @@ export function MessageComposer({
               />
               <button
                 onClick={handleSubmit}
-                disabled={!text.trim() || status === "sending" || isRateLimited || isSubmitting}
+                disabled={!text.trim() || status === "sending" || isRateLimited}
                 className="bg-primary text-on-primary p-3 rounded-full hover:bg-on-primary-container transition-colors flex-shrink-0 shadow-sm disabled:opacity-60"
                 aria-label={t("chat.send")}
               >
-                {status === "sending" || isSubmitting ? (
+                {status === "sending" ? (
                   <svg className="w-5 h-5" style={{ animation: "spin 1s linear infinite" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 7v-5h-.581m0 7a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
