@@ -62,7 +62,7 @@ class KimiProvider implements LLMProvider {
     fallbackPrompt: string
   ): Promise<string> {
     try {
-      const res = await fetch(`${this.baseUrl}/v1/messages`, {
+      const res = await fetch(`${this.baseUrl}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

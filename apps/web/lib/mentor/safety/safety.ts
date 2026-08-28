@@ -68,7 +68,7 @@ async function classifyWithLLM(message: string): Promise<ClassifierOutput | null
 
   const baseUrl = config.baseUrl.replace(/\/$/, "");
   try {
-    const res = await fetch(`${baseUrl}/v1/messages`, {
+    const res = await fetch(`${baseUrl}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -90,7 +90,7 @@ async function classifyWithLLM(message: string): Promise<ClassifierOutput | null
     });
 
     if (!res.ok) {
-      console.warn("Safety classifier API error:", res.status, await res.text());
+      console.warn("Kimi API error:", res.status, await res.text());
       return null;
     }
 
