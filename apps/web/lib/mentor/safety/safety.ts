@@ -95,7 +95,11 @@ async function classifyWithLLM(message: string): Promise<ClassifierOutput | null
     }
 
     const data = (await res.json()) as { content: { type: string; text: string }[] };
-    const text = data.content.map((c) => c.text).join("").trim();
+    const text = data.content
+      .filter((c) => c.type === "text")
+      .map((c) => c.text)
+      .join("")
+      .trim();
     const parsed = parseClassifierResponse(text);
     if (parsed && isValidClassifierOutput(parsed)) {
       return parsed;

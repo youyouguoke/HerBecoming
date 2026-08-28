@@ -80,13 +80,14 @@ class KimiProvider implements LLMProvider {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(`MiMo API error: ${res.status} ${text}`);
+        throw new Error(`Kimi API error: ${res.status} ${text}`);
       }
 
       const data = (await res.json()) as { content: { type: string; text: string }[] };
-      return data.content.map((c) => c.text).join("");
+      const text = extractTextFromKimiResponse(data);
+      return text;
     } catch (err) {
-      console.warn("MiMo API call failed, falling back to mock provider:", err);
+      console.warn("Kimi API call failed, falling back to mock provider:", err);
       return new MockLLMProvider().generateRawText(fallbackPrompt || "Language: en\n", maxTokens);
     }
   }
@@ -217,6 +218,22 @@ export function getLLMProvider(): LLMProvider {
     return new KimiProvider(kimi.baseUrl, kimi.apiKey, process.env.KIMI_MODEL || kimi.model);
   }
   return new MockLLMProvider();
+}
+
+function extractTextFromKimiResponse(data: { content: { type: string; text: string }[] }): string {
+  // Some Kimi responses include `thinking` blocks before text blocks; skip them.
+  // Also strip markdown fences (```json ... ```) if the model wraps JSON.
+  const text = data.content
+    .filter((c) => c.type === "text")
+    .map((c) => c.text)
+    .join("")
+    .trim();
+
+  const fencedMatch = text.match(/```(?:\w+)?\n?([\s\S]+?)```/);
+  if (fencedMatch) {
+    return fencedMatch[1].trim();
+  }
+  return text;
 }
 
 function buildSystemPrompt(): string {
