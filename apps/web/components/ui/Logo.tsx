@@ -14,10 +14,10 @@ interface LogoProps {
 }
 
 const LOGO_CONFIG = {
-  header: { src: "/logo-header.png", height: 40, width: 142 },
-  footer: { src: "/logo-footer.png", height: 32, width: 113 },
-  hero: { src: "/logo-full.png", height: 120, width: 422 },
-  icon: { src: "/favicon-48x48.png", height: 48, width: 37 },
+  header: { src: "/logo-header.png", height: 40, width: 134 },
+  footer: { src: "/logo-footer.png", height: 32, width: 107 },
+  hero: { src: "/logo-full.png", height: 120, width: 405 },
+  icon: { src: "/favicon-48x48.png", height: 48, width: 40 },
 } as const;
 
 export function Logo({
