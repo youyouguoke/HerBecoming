@@ -25,6 +25,7 @@ export interface ChatResponse {
   suggestedAction: string | null;
   conversationId: string;
   sessionId: string;
+  assistantMessageId?: string;
 }
 
 export interface UsageState {

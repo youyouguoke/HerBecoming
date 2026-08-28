@@ -58,8 +58,8 @@ function saveLocalMessages(messages: ChatMessage[]) {
 }
 
 function apiUrl(): string {
-  // Static export must use same-origin proxy; absolute backend URL causes CORS/401
-  return "";
+  // API backend is at api.herbecoming.app (baked in at build time via NEXT_PUBLIC_API_URL)
+  return process.env.NEXT_PUBLIC_API_URL || "";
 }
 
 async function fetchHistory(sessionId: string, conversationId: string): Promise<ChatMessage[]> {
