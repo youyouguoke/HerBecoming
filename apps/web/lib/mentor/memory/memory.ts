@@ -54,7 +54,8 @@ async function retrieveMemoriesByVector(
   const embedding = await provider.embed(userMessage);
   const vectorLiteral = `[${embedding.join(", ")}]`;
 
-  const rows = await prisma.$queryRawUnsafe<
+  // First try vector search for memories with embeddings
+  const vectorRows = await prisma.$queryRawUnsafe<
     Array<Memory & { distance: number }>
   >(
     `
@@ -74,6 +75,7 @@ async function retrieveMemoriesByVector(
     FROM memories m
     WHERE m."userId" = $2
       AND m."isDeleted" = false
+      AND m.embedding IS NOT NULL
     ORDER BY distance ASC
     LIMIT $3
     `,
@@ -82,7 +84,26 @@ async function retrieveMemoriesByVector(
     topK
   );
 
-  return rows;
+  // If we have enough vector results, return them
+  if (vectorRows.length >= topK) {
+    return vectorRows;
+  }
+
+  // Otherwise, fill with keyword-based search for memories without embeddings
+  const vectorIds = new Set(vectorRows.map(r => r.id));
+  const remaining = topK - vectorRows.length;
+
+  const keywordMemories = await prisma.memory.findMany({
+    where: {
+      userId,
+      isDeleted: false,
+      embedding: null,
+    },
+    orderBy: { updatedAt: "desc" },
+    take: remaining,
+  });
+
+  return [...vectorRows, ...keywordMemories];
 }
 
 async function retrieveMemoriesByKeyword(
@@ -137,10 +158,7 @@ export async function persistMemory(input: PersistMemoryInput): Promise<Memory |
   if (!content || content.length < 5) return null;
 
   try {
-    const provider = getEmbeddingProvider();
-    const embedding = await provider.embed(content);
-    const vectorLiteral = `[${embedding.join(", ")}]`;
-
+    // Create the memory first
     const memory = await prisma.memory.create({
       data: {
         userId,
@@ -151,12 +169,24 @@ export async function persistMemory(input: PersistMemoryInput): Promise<Memory |
       },
     });
 
-    // Store embedding via raw SQL because Prisma does not yet support vector columns natively.
-    await prisma.$executeRawUnsafe(
-      `UPDATE memories SET embedding = $1::vector WHERE id = $2`,
-      vectorLiteral,
-      memory.id
-    );
+    // Try to generate and store embedding
+    try {
+      const provider = getEmbeddingProvider();
+      if (provider.name !== "keyword-fallback") {
+        const embedding = await provider.embed(content);
+        const vectorLiteral = `[${embedding.join(", ")}]`;
+
+        // Store embedding via raw SQL because Prisma does not yet support vector columns natively.
+        await prisma.$executeRawUnsafe(
+          `UPDATE memories SET embedding = $1::vector WHERE id = $2`,
+          vectorLiteral,
+          memory.id
+        );
+      }
+    } catch (embeddingErr) {
+      // Embedding generation failed, but memory was still created
+      console.warn("[persistMemory] Failed to generate embedding, memory saved without vector:", embeddingErr);
+    }
 
     return memory;
   } catch (err) {

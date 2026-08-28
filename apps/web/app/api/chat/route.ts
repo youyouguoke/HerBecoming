@@ -7,8 +7,9 @@ import { persistMemory } from "@/lib/mentor/memory/memory";
 import { corsHeaders } from "@/lib/cors";
 import { nanoid } from "nanoid";
 
-// Guest daily quota
-const DAILY_FREE_LIMIT = 3;
+// Daily quotas
+const DAILY_FREE_LIMIT_ANON = 10;
+const DAILY_FREE_LIMIT_USER=30;
 
 export async function OPTIONS(req: NextRequest) {
   return new NextResponse(null, {
@@ -58,21 +59,20 @@ export async function POST(req: NextRequest) {
     // 2. Quota check
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const usage = await prisma.usageRecord.findUnique({
-      where: {
-        anonymousSessionId_date: {
-          anonymousSessionId: session.id,
-          date: today,
-        },
-      },
-    });
 
-    if (usage && usage.usedCount >= DAILY_FREE_LIMIT) {
+    const dailyLimit = userId ? DAILY_FREE_LIMIT_USER : DAILY_FREE_LIMIT_ANON;
+    const usageWhere = userId
+      ? { userId_date: { userId, date: today } }
+      : { anonymousSessionId_date: { anonymousSessionId: session.id, date: today } };
+
+    const usage = await prisma.usageRecord.findUnique({ where: usageWhere });
+
+    if (usage && usage.usedCount >= dailyLimit) {
+      const message = userId
+        ? "You've used your 30 questions for today."
+        : "You've used your 10 free questions for today. Sign in to continue.";
       return NextResponse.json(
-        {
-          error: "DAILY_LIMIT_REACHED",
-          message: "You've used your 3 free questions for today. Sign in to continue.",
-        },
+        { error: "DAILY_LIMIT_REACHED", message },
         { status: 429, headers: corsHeaders(req.headers.get("origin")) }
       );
     }
@@ -153,23 +153,19 @@ export async function POST(req: NextRequest) {
 
     // 7. Update usage (not counted for crisis responses)
     if (response.safetyStatus !== "crisis") {
+      const upsertWhere = userId
+        ? { userId_date: { userId, date: today } }
+        : { anonymousSessionId_date: { anonymousSessionId: session.id, date: today } };
+      const upsertCreate = userId
+        ? { userId, date: today, usedCount: 1, lastUsedAt: new Date() }
+        : { anonymousSessionId: session.id, date: today, usedCount: 1, lastUsedAt: new Date() };
       await prisma.usageRecord.upsert({
-        where: {
-          anonymousSessionId_date: {
-            anonymousSessionId: session.id,
-            date: today,
-          },
-        },
+        where: upsertWhere,
         update: {
           usedCount: { increment: 1 },
           lastUsedAt: new Date(),
         },
-        create: {
-          anonymousSessionId: session.id,
-          date: today,
-          usedCount: 1,
-          lastUsedAt: new Date(),
-        },
+        create: upsertCreate,
       });
     }
 

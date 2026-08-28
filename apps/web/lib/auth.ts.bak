@@ -1,0 +1,89 @@
+import NextAuth, { getServerSession } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "@/lib/db/prisma";
+import { migrateAnonymousSessionToUser } from "@/lib/auth/migrate";
+
+export const authOptions = {
+  adapter: PrismaAdapter(prisma),
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  callbacks: {
+    async signIn({ user, account }) {
+      try {
+        const rawState = account?.state as string | undefined;
+        if (rawState && user.id) {
+          const parsed = JSON.parse(rawState);
+          if (parsed?.anonymousSessionId) {
+            await migrateAnonymousSessionToUser(parsed.anonymousSessionId, user.id);
+          }
+        }
+      } catch (err) {
+        console.error("[auth] Failed to migrate anonymous session:", err);
+      }
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.picture = user.image;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token?.sub) {
+        session.user.id = token.sub;
+      }
+      return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // Cross-domain fix: force backend callbacks to redirect to the frontend domain
+      if (url.startsWith("https://api.herbecoming.app")) {
+        return "https://herbecoming.app/chat";
+      }
+      if (url.startsWith("https://herbecoming.app")) {
+        return url;
+      }
+      return baseUrl;
+    },
+  },
+  trustHost: true,
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: true,
+        domain: ".herbecoming.app",
+      },
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+};
+
+const handler = NextAuth(authOptions as any);
+export { handler as GET, handler as POST };
+
+export async function auth() {
+  return getServerSession(authOptions);
+}
+
+export type AuthUser = {
+  id: string;
+  email?: string | null;
+  name?: string | null;
+  image?: string | null;
+};

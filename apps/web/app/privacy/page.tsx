@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | HerBecoming",
@@ -9,11 +8,6 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="flex flex-col flex-1 bg-background text-on-background">
-      <header className="w-full px-margin-mobile md:px-margin-desktop py-md max-w-[1140px] mx-auto flex justify-between items-center">
-        <Link href="/" className="font-headline-md text-headline-md text-primary">
-          HerBecoming
-        </Link>
-      </header>
       <main className="flex-1 w-full max-w-[760px] mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-16">
         <h1 className="font-display text-display text-primary mb-8">Privacy Policy</h1>
         <div className="space-y-6 font-body-md text-body-md text-on-surface">

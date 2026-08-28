@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import ReactMarkdown from "react-markdown";
 import { useI18n } from "@/components/providers/I18nProvider";
+import { VoiceOutputButton } from "@/components/voice/VoiceOutputButton";
 
 interface MentorMessageProps {
   content: string;
@@ -16,7 +17,7 @@ interface MentorMessageProps {
 }
 
 export function MentorMessage({ content, messageId, conversationId, feedback, onFeedback }: MentorMessageProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { status: authStatus } = useSession();
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorText, setErrorText] = useState<string | null>(null);
@@ -65,6 +66,7 @@ export function MentorMessage({ content, messageId, conversationId, feedback, on
       <div className="flex items-center gap-2 mb-1">
         <span className="font-headline-md text-headline-md text-primary">HerBecoming</span>
         <span className="font-label-sm text-label-sm text-outline">Mentor</span>
+        <VoiceOutputButton text={content} locale={locale} />
       </div>
       <div className="pl-4 border-l-2 border-primary-container max-w-[95%] md:max-w-[80%]">
         <div className="font-body-lg text-body-lg text-on-surface prose prose-sm max-w-none prose-headings:font-headline-md prose-headings:text-on-surface prose-p:mb-4 prose-ul:pl-5 prose-li:marker:text-on-surface-variant">
@@ -134,6 +136,23 @@ export function MentorMessage({ content, messageId, conversationId, feedback, on
           )}
 
           {errorText && <span className="font-label-sm text-label-sm text-error">{errorText}</span>}
+
+          {isAuthenticated && (
+            <button
+              onClick={async () => {
+                if (!confirm("Are you sure you want me to forget this?")) return;
+                // This would trigger a memory deletion in a real implementation
+                // For now, we'll just show a message
+                alert("Memory deletion would be triggered here. In a full implementation, this would call the memory API to delete related memories.");
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-variant transition-colors font-label-sm text-label-sm text-on-surface-variant"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Forget this</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

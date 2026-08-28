@@ -37,17 +37,6 @@ export default function JournalPage() {
 
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <header className="sticky top-0 z-50 bg-background border-b border-surface-variant/30">
-        <div className="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md max-w-[1140px] mx-auto">
-          <Link href="/" className="font-headline-md text-headline-md text-primary tracking-tight">
-            HerBecoming
-          </Link>
-          <Link href="/chat" className="text-primary font-label-md text-label-md hover:opacity-80 transition-opacity">
-            {t("nav.start_conversation")}
-          </Link>
-        </div>
-      </header>
-
       <main className="max-w-[1140px] mx-auto px-margin-mobile md:px-margin-desktop py-xl">
         <div className="flex items-center justify-between mb-lg">
           <h1 className="font-display text-display-sm text-on-surface">{t("journal.title")}</h1>
@@ -73,9 +62,10 @@ export default function JournalPage() {
 
         <div className="grid gap-md">
           {decisions.map((decision) => (
-            <div
+            <Link
               key={decision.id}
-              className="p-md md:p-lg bg-surface-container rounded-2xl border border-outline-variant/50 hover:border-outline transition-colors"
+              href={`/journal/decision?id=${decision.id}`}
+              className="block p-md md:p-lg bg-surface-container rounded-2xl border border-outline-variant/50 hover:border-outline transition-colors"
             >
               <div className="flex items-start justify-between gap-md mb-sm">
                 <h2 className="font-headline-sm text-headline-sm text-on-surface">{decision.title}</h2>
@@ -95,7 +85,7 @@ export default function JournalPage() {
                   {decision.nextAction}
                 </p>
               )}
-            </div>
+            </Link>
           ))}
         </div>
       </main>

@@ -20,6 +20,8 @@ model User {
   id            String    @id @default(cuid())
   email         String?   @unique
   name          String?
+  image         String?   // NextAuth PrismaAdapter avatar field
+  emailVerified DateTime? // NextAuth PrismaAdapter required field
   avatarUrl     String?
   locale        String    @default("en") // en | zh
   createdAt     DateTime  @default(now())
@@ -36,6 +38,7 @@ model User {
   reflections   Reflection[]
   usageRecords  UsageRecord[]
   feedbacks     Feedback[]
+  analyticsEvents AnalyticsEvent[]
 
   @@map("users")
 }
@@ -46,13 +49,13 @@ model Account {
   type              String // oauth | credentials
   provider          String // google | wechat
   providerAccountId String
-  refreshToken      String? @db.Text
-  accessToken       String? @db.Text
-  expiresAt         Int?
-  tokenType         String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
   scope             String?
-  idToken           String? @db.Text
-  sessionState      String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -71,8 +74,9 @@ model AnonymousSession {
   createdAt       DateTime @default(now())
   lastActiveAt    DateTime?
 
-  conversations Conversation[]
-  usageRecords  UsageRecord[]
+  conversations   Conversation[]
+  usageRecords    UsageRecord[]
+  analyticsEvents AnalyticsEvent[]
 
   // Migration target when user logs in
   migratedToUserId String?
@@ -502,4 +506,37 @@ model Feedback {
 
   @@index([userId])
   @@map("feedbacks")
+}
+
+// ============================================================================
+// 11. Analytics & Events
+// ============================================================================
+
+enum EventType {
+  CONVERSATION_START
+  MESSAGE_SENT
+  DECISION_SAVED
+  REFLECTION_SAVED
+  USER_LOGIN
+  USER_SIGNUP
+  FEEDBACK_GIVEN
+}
+
+model AnalyticsEvent {
+  id              String    @id @default(cuid())
+  eventType       EventType
+  userId          String?
+  anonymousSessionId String?
+  conversationId  String?
+  messageId       String?
+  metadata        Json?     // Additional event-specific data
+  createdAt       DateTime  @default(now())
+
+  user                User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anonymousSession    AnonymousSession? @relation(fields: [anonymousSessionId], references: [id], onDelete: Cascade)
+
+  @@index([eventType, createdAt])
+  @@index([userId, createdAt])
+  @@index([anonymousSessionId, createdAt])
+  @@map("analytics_events")
 }

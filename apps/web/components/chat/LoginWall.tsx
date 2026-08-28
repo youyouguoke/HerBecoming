@@ -5,9 +5,10 @@ import { useI18n } from "@/components/providers/I18nProvider";
 
 interface LoginWallProps {
   anonymousSessionId?: string;
+  onClose?: () => void;
 }
 
-export function LoginWall({ anonymousSessionId }: LoginWallProps) {
+export function LoginWall({ anonymousSessionId, onClose }: LoginWallProps) {
   const { t } = useI18n();
 
   const handleGoogleSignIn = () => {
@@ -19,7 +20,18 @@ export function LoginWall({ anonymousSessionId }: LoginWallProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm px-margin-mobile">
-      <div className="w-full max-w-[420px] flex flex-col space-y-xl text-center">
+      <div className="w-full max-w-[420px] flex flex-col space-y-xl text-center relative">
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute -top-2 -right-2 p-2 rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors"
+            aria-label="Close"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
         <div className="space-y-sm">
           <h1 className="font-display text-display text-on-surface">{t("chat.limit_reached_title")}</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant">

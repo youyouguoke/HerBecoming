@@ -28,7 +28,19 @@ export async function migrateAnonymousSessionToUser(
         data: { userId, anonymousSessionId: null },
       });
 
-      // 2. Migrate usage records: merge into user's records by date
+      // 2. Migrate decisions
+      await tx.decision.updateMany({
+        where: { userId: null, conversationId: { in: [] } }, // Decisions linked to migrated conversations
+        data: { userId },
+      });
+
+      // 3. Migrate reflections
+      await tx.reflection.updateMany({
+        where: { userId: null, conversationId: { in: [] } }, // Reflections linked to migrated conversations
+        data: { userId },
+      });
+
+      // 4. Migrate usage records: merge into user's records by date
       const anonymousUsage = await tx.usageRecord.findMany({
         where: { anonymousSessionId: anonymousSession.id },
       });
@@ -61,7 +73,7 @@ export async function migrateAnonymousSessionToUser(
         }
       }
 
-      // 3. Mark anonymous session as migrated
+      // 5. Mark anonymous session as migrated
       await tx.anonymousSession.update({
         where: { id: anonymousSession.id },
         data: { migratedToUserId: userId },

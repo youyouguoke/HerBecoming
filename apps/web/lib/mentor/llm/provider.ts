@@ -6,25 +6,30 @@ export interface LLMProvider {
   generateRawText(prompt: string, maxTokens?: number): Promise<string>;
 }
 
-export function loadMimoConfig(): { baseUrl: string; apiKey: string; model: string } | null {
+export function loadKimiConfig(): { baseUrl: string; apiKey: string; model: string } | null {
   try {
     const raw = fs.readFileSync("/root/.openclaw/openclaw.json", "utf8");
     const config = JSON.parse(raw);
-    const mimo = config.models?.providers?.mimo;
-    if (mimo?.baseUrl && mimo?.apiKey && mimo?.models?.length) {
+    const kimi = config.models?.providers?.kimicode;
+    if (kimi?.baseUrl && kimi?.apiKey && kimi?.models?.length) {
       return {
-        baseUrl: mimo.baseUrl,
-        apiKey: mimo.apiKey,
-        model: mimo.models[0].id,
+        baseUrl: kimi.baseUrl,
+        apiKey: kimi.apiKey,
+        model: process.env.KIMI_MODEL || kimi.models[0].id,
       };
     }
   } catch (err) {
-    console.warn("Failed to load MiMo config from openclaw.json:", err);
+    console.warn("Failed to load Kimi config from openclaw.json:", err);
   }
   return null;
 }
 
-class MimoProvider implements LLMProvider {
+// Kept for backward compatibility; points to Kimi now.
+export function loadMimoConfig(): { baseUrl: string; apiKey: string; model: string } | null {
+  return loadKimiConfig();
+}
+
+class KimiProvider implements LLMProvider {
   private baseUrl: string;
   private apiKey: string;
   private model: string;
@@ -207,9 +212,9 @@ Please generate the final Mentor response in ${understanding.language === "zh" ?
 }
 
 export function getLLMProvider(): LLMProvider {
-  const mimo = loadMimoConfig();
-  if (mimo) {
-    return new MimoProvider(mimo.baseUrl, mimo.apiKey, process.env.MIMO_MODEL || mimo.model);
+  const kimi = loadKimiConfig();
+  if (kimi) {
+    return new KimiProvider(kimi.baseUrl, kimi.apiKey, process.env.KIMI_MODEL || kimi.model);
   }
   return new MockLLMProvider();
 }

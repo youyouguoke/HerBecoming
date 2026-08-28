@@ -42,7 +42,7 @@ export function WelcomeState({ onSend, status }: WelcomeStateProps) {
   };
 
   return (
-    <div className="w-full max-w-[760px] flex flex-col items-center justify-center flex-1 text-center pt-16 md:pt-24">
+    <div className="w-full max-w-[760px] flex flex-col items-center justify-center flex-1 text-center pt-16 md:pt-24 pb-24 md:pb-0">
       <div className="space-y-lg mb-xl animate-slide-up">
         <h1 className="font-display text-display text-primary">HerBecoming</h1>
         <div className="space-y-sm">

@@ -15,6 +15,12 @@
     "db:studio": "npm run db:studio --workspace=packages/database"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0"
+    "@prisma/client": "5.22.0"
+  },
+  "overrides": {
+    "@auth/prisma-adapter": {
+      "@prisma/client": "5.22.0"
+    },
+    "@prisma/client": "5.22.0"
   }
 }

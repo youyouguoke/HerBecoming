@@ -23,7 +23,7 @@ fi
 
 # Build
 echo "[build-pages] Building..."
-NEXT_PUBLIC_API_URL=https://api.herbecoming.app npm run build
+NEXT_PUBLIC_API_URL= npm run build
 EXIT_CODE=$?
 
 # Restore API routes
